@@ -1,0 +1,29 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pelican-add-css-classes = "==1.0.4"
+pyautogui = "*"
+pillow = "*"
+numpy = "*"
+opencv-python = "*"
+tk = "*"
+clipboard = "*"
+termcolor = "*"
+letter = "*"
+
+[requires]
+python_version = "3.10"
+
+[dev-packages]
+pytest = "*"
+pytest-cov = "*"
+pytest-sugar = "*"
+black = "*"
+mypy = "*"
+
+[scripts]
+solve_wordle = "pipenv run python -m solve"
+test = "pipenv run pytest"
