@@ -206,17 +206,58 @@ def fetch_green_words(word_, colors_: list[ColorName]) -> dict[str, int]:
     return letters
 
 
-def fetch_yellow_words(word_: str, colors_: list[ColorName]) -> dict[str, int]:
-    letters = {}
+def fetch_yellow_words(word_: str, colors_: list[ColorName]) -> list[int]:
+    letters = []
     for i, _ in enumerate(word_):
         if colors_[i] == "yellow":
-            letters[word_[i]] = i
+            letters.append(i)
     return letters
+
+
+class WordleSolver:
+    def __init__(self, words_repo: WordsRepository, current_row: int = 0, current_word=""):
+        self._words_repo: Final[WordsRepository] = words_repo
+        self._current_row: Final[int] = current_row
+        self._current_word: Final[str] = current_word
+
+    @property
+    def current_row(self) -> int:
+        return self._current_row
+
+    @property
+    def current_word(self) -> str:
+        return self._current_word
+
+    @property
+    def remaining_words_in_memory(self) -> tuple[str]:
+        return self._words_repo.remaining_words
+
+    def get_random_word(self) -> "WordleSolver":
+        new_current_word = self._words_repo.remaining_words[randrange(0, len(self._words_repo.remaining_words))]
+        return WordleSolver(
+            self._words_repo.forget_word(new_current_word),
+            self._current_row,
+            new_current_word,
+        )
+
+    def highlighted_for_current_word(self, yellow_letters: list[int], green_letters: list[int], grey_letters: str) -> "WordleSolver":
+        words_repo = self._words_repo
+        words_repo = words_repo.remember_at(self.current_word, green_letters)
+        words_repo = words_repo.remember_not_at(self.current_word, yellow_letters)
+        new_words_repo = words_repo.forget(grey_letters)
+        temp_word_store = new_words_repo
+        new_words_repo = new_words_repo.forget_word(self._current_word)
+        new_words_repo = temp_word_store if len(new_words_repo.remaining_words) == 0 else new_words_repo
+        return WordleSolver(
+            new_words_repo,
+            self._current_row+1,
+            new_words_repo,
+        )
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format="[⌚ %(asctime)s] Wordle Bot: \"%(message)s\"")
-    wordle_solver = WordsRepository()
+    wordle_solver = WordleSolver(WordsRepository())
     check_if_game_has_started()
     wait_till_animation_end()
     if closable_modal_is_open():
@@ -226,40 +267,37 @@ if __name__ == '__main__':
     partitions = split_rows(partitions)
     i = 0
     while True:
-        logging.info(f"I have {len(wordle_solver.remaining_words)} words in my memory 🦹")
-        if len(wordle_solver.remaining_words) == 0:
+        logging.info(f"I have {len(wordle_solver.remaining_words_in_memory)} words in my memory 🧠")
+        if len(wordle_solver.remaining_words_in_memory) == 0:
             logging.info(f"I don't know the word the game wants me to guess 😞")
             break
-        word = wordle_solver.remaining_words[randrange(0, len(wordle_solver.remaining_words))]
+        wordle_solver = wordle_solver.get_random_word()
+        i = wordle_solver.current_row
         wait_till_animation_end()
-        enter_a_word(word.upper())
+        enter_a_word(wordle_solver.current_word.upper())
         wait_till_animation_end(checks=2)
         colors = letter_colours(partitions[i], i)
         if all_white_cells(colors):
             logging.info("Looks like the game does not know this word 🤷‍")
-            wordle_solver = wordle_solver.forget_word(word)
             for _ in range(5):
                 pyautogui.press("backspace")
         elif all_green_cells(colors):
             logging.info("Looks like I won the game 🙋")
             break
         else:
-            i += 1
             logging.info(f"I see the colors 👀{color_squares(colors)}")
-            yellow_words = fetch_yellow_words(word, color_names(colors))
-            for k in yellow_words.keys():
-                wordle_solver = wordle_solver.remember_not_at(k, yellow_words[k])
-            green_words = fetch_green_words(word, color_names(colors))
-            for k in green_words.keys():
-                wordle_solver = wordle_solver.remember_at(k, green_words[k])
-            grey_words = fetch_grey_words(word, color_names(colors))
-            wordle_solver = wordle_solver.forget(grey_words)
-            logging.info(f"I'm forgetting the words based on those colors from my memory")
-            wordle_solver = wordle_solver.forget_word(word)
+            yellow_words = fetch_yellow_words(wordle_solver.current_word, color_names(colors))
+            green_words = fetch_green_words(wordle_solver.current_word, color_names(colors))
+            grey_words = fetch_grey_words(wordle_solver.current_word, color_names(colors))
+            wordle_solver = wordle_solver.highlighted_for_current_word(
+                yellow_letters=yellow_words,
+                green_letters=green_words.values(),
+                grey_letters=grey_words,
+            )
+            logging.info(f"I'm forgetting the non-needed words from my memory 🧠")
         if i == 6:
             logging.info("Looks like I used up all the attempts 😞")
             break
-
     time.sleep(1)
     clipped = clipboard.paste()
     Path("solved.txt").write_text(clipped)

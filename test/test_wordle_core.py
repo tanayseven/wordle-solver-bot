@@ -29,8 +29,8 @@ def test_remember_letter():
 
 def test_remember_letter_better():
     word_solver = WordsRepository(("cat", "dog", "bat", "tom"))
-    new_word_solver = word_solver.remember_not_at(letter="O", at_position=0)
-    new_word_solver = new_word_solver.remember_not_at(letter="G", at_position=1)
+    new_word_solver = word_solver.remember_not_at(current_word="O", at_position=0)
+    new_word_solver = new_word_solver.remember_not_at(current_word="G", at_position=1)
     assert len(new_word_solver.remaining_words) == 1
     assert "dog" in new_word_solver.remaining_words
 
@@ -38,7 +38,7 @@ def test_remember_letter_better():
 def test_remember_letter_given_no_letters():
     words = ("cat", "dog", "bat", "tom")
     word_solver = WordsRepository(words)
-    new_word_solver = word_solver.remember_not_at(letter="", at_position=0)
+    new_word_solver = word_solver.remember_not_at(current_word="", at_position=0)
     assert len(new_word_solver.remaining_words) == 4
     assert set(words) == set(new_word_solver.remaining_words)
 
@@ -46,7 +46,7 @@ def test_remember_letter_given_no_letters():
 def test_already_remembered_letters_cant_be_forgotten():
     words = ("cat", "dog", "bat", "tom")
     word_solver = WordsRepository(words)
-    new_word_solver = word_solver.remember_not_at(letter="c", at_position=1)
+    new_word_solver = word_solver.remember_not_at(current_word="c", at_position=1)
     new_word_solver = new_word_solver.remember_at(letter="a", at_position=1)
     new_word_solver = new_word_solver.forget(letters="ao")
     assert len(new_word_solver.remaining_words) == 4

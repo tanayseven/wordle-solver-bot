@@ -4,46 +4,56 @@ from typing import Final
 
 
 class WordsRepository:
-    def __init__(self, words: tuple[str, ...] = None, letters_in_words: frozenset = frozenset()):
+    def __init__(self, words: tuple[str, ...] = None, letters_to_remember: tuple[str, str, str, str, str] = ()):
         self._words: Final[tuple[str]] = json.loads(Path("words_dictionary.json").read_text()) \
             if words is None else words
-        self._letters_in_words: Final[frozenset] = letters_in_words
+        self._letters_to_remember: tuple[str, str, str, str, str] = letters_to_remember
 
     def forget(self, letters: str) -> "WordsRepository":
-        normalized_letters = letters.lower()
-        normalized_letters = "".join(set([x for x in normalized_letters]).difference([x for x in self._letters_in_words]))
+        normalized_letters = frozenset(x for x in letters.lower())
         new_set_of_words = tuple(
             word
             for word in self._words
             if all(
-                (letter not in word)
+                letter not in word
                 for letter in normalized_letters
+            ) and all(
+                word[index] in word_letter
+                for index, word_letter in enumerate(self._letters_to_remember)
             )
         )
-        return WordsRepository(new_set_of_words, self._letters_in_words)
+        return WordsRepository(new_set_of_words, self._letters_to_remember)
 
     @property
     def remaining_words(self) -> tuple[str]:
         return self._words
 
-    def remember_not_at(self, letter: str, at_position: int) -> "WordsRepository":
-        letter = letter.lower()
-        new_set_of_words = tuple(
-            word
-            for word in self._words if letter in word and word[at_position] != letter
-        )
-        new_letters_to_remember = self._letters_in_words.union(frozenset(letter))
-        return WordsRepository(new_set_of_words, new_letters_to_remember)
-
-    def remember_at(self, letter: str, at_position: int) -> "WordsRepository":
-        letter = letter.lower()
+    def remember_not_at(self, current_word: str, at_positions: list[int]) -> "WordsRepository":
         new_set_of_words = tuple(
             word
             for word in self._words
-            if word[at_position] == letter
+            if all(
+                word[position] != current_word[position] and current_word[position] in word
+                for position in at_positions
+            )
         )
-        new_letters_to_remember = self._letters_in_words.union(frozenset(letter))
-        return WordsRepository(new_set_of_words, new_letters_to_remember)
+        return WordsRepository(new_set_of_words, self._letters_to_remember)
+
+    def remember_at(self, current_word: str, at_positions: list[int]) -> "WordsRepository":
+        new_set_of_words = tuple(
+            word
+            for word in self._words
+            if all(
+                word[position] == current_word[position]
+                for position in at_positions
+            )
+        )
+        new_words_to_remember = tuple(
+            letters + current_word[letter_index]
+            for letter_index, letters
+            in enumerate(self._letters_to_remember)
+        )
+        return WordsRepository(new_set_of_words, new_words_to_remember) # type: ignore
 
     def forget_word(self, word_to_forget: str):
         word_to_forget = word_to_forget.lower()
@@ -52,4 +62,4 @@ class WordsRepository:
             for word in self._words
             if word != word_to_forget
         )
-        return WordsRepository(new_set_of_words, self._letters_in_words)
+        return WordsRepository(new_set_of_words, self._letters_to_remember)
