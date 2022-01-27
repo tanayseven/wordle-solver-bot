@@ -34,7 +34,7 @@ def take_a_screenshot(area: Tuple[int, int, int, int] = screen_area) -> Image:
 
 
 browser_process = subprocess.Popen(
-    ["faketime", "2022-01-29", "chromium", "https://www.powerlanguage.co.uk/wordle/", "--window-size=700,1000",
+    ["faketime", "2022-01-26", "chromium", "https://www.powerlanguage.co.uk/wordle/", "--window-size=700,1000",
      "--window-position=0,0", "--new-window", "--incognito",
      ],
     stdout=subprocess.DEVNULL,
@@ -198,11 +198,11 @@ def fetch_grey_words(word_: str, colors_: list[ColorName]) -> str:
     return letters
 
 
-def fetch_green_words(word_, colors_: list[ColorName]) -> dict[str, int]:
-    letters = {}
+def fetch_green_words(word_, colors_: list[ColorName]) -> list[int]:
+    letters = []
     for i, _ in enumerate(word_):
         if colors_[i] == "green":
-            letters[word_[i]] = i
+            letters.append(i)
     return letters
 
 
@@ -245,14 +245,19 @@ class WordleSolver:
         words_repo = words_repo.remember_at(self.current_word, green_letters)
         words_repo = words_repo.remember_not_at(self.current_word, yellow_letters)
         new_words_repo = words_repo.forget(grey_letters)
-        temp_word_store = new_words_repo
         new_words_repo = new_words_repo.forget_word(self._current_word)
-        new_words_repo = temp_word_store if len(new_words_repo.remaining_words) == 0 else new_words_repo
         return WordleSolver(
             new_words_repo,
             self._current_row+1,
             new_words_repo,
         )
+
+
+def eliminate_greys_having_green_and_yellow(grey_words, current_word, green_words_indexes, yellow_words_indexes):
+    green_words = str([current_word[index] for index in green_words_indexes])
+    yellow_words = str([current_word[index] for index in yellow_words_indexes])
+    return str([letter for letter in grey_words if letter not in green_words and letter not in yellow_words])
+
 
 
 if __name__ == '__main__':
@@ -270,6 +275,9 @@ if __name__ == '__main__':
         logging.info(f"I have {len(wordle_solver.remaining_words_in_memory)} words in my memory 🧠")
         if len(wordle_solver.remaining_words_in_memory) == 0:
             logging.info(f"I don't know the word the game wants me to guess 😞")
+            break
+        if wordle_solver.current_row == 6:
+            logging.info("Looks like I used up all the attempts 😞")
             break
         wordle_solver = wordle_solver.get_random_word()
         i = wordle_solver.current_row
@@ -289,17 +297,15 @@ if __name__ == '__main__':
             yellow_words = fetch_yellow_words(wordle_solver.current_word, color_names(colors))
             green_words = fetch_green_words(wordle_solver.current_word, color_names(colors))
             grey_words = fetch_grey_words(wordle_solver.current_word, color_names(colors))
+            cleaned_grey_words = eliminate_greys_having_green_and_yellow(grey_words, wordle_solver.current_word, green_words, yellow_words)
             wordle_solver = wordle_solver.highlighted_for_current_word(
                 yellow_letters=yellow_words,
-                green_letters=green_words.values(),
-                grey_letters=grey_words,
+                green_letters=green_words,
+                grey_letters=cleaned_grey_words,
             )
             logging.info(f"I'm forgetting the non-needed words from my memory 🧠")
-        if i == 6:
-            logging.info("Looks like I used up all the attempts 😞")
-            break
     time.sleep(1)
     clipped = clipboard.paste()
     Path("solved.txt").write_text(clipped)
+    logging.info(f"I'm closing the browser now")
     os.killpg(os.getpgid(browser_process.pid), signal.SIGKILL)
-    print("Done!")
