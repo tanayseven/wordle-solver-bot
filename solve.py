@@ -6,7 +6,7 @@ import subprocess
 import time
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Tuple, Final, Any, List
+from typing import Tuple, Final, Any
 
 import cv2  # type: ignore
 import numpy as np
@@ -16,7 +16,6 @@ from pyperclip import paste  # type: ignore
 from termcolor import colored  # type: ignore
 
 from core import WordsRepository, WordleSolver, white, green, color_map, ColorRGB, ColorName
-
 
 CellBounds = list[tuple[tuple[Any, Any], tuple[Any, Any]]]
 RowWithCellBounds = tuple[CellBounds, CellBounds, CellBounds, CellBounds, CellBounds]
@@ -159,25 +158,24 @@ def letter_colours(row: CellBounds, number=0) -> list[ColorRGB]:
     return grid_colours
 
 
-def all_white_cells(colors_):
+def all_white_cells(colors_: list[ColorRGB]) -> bool:
     for color in colors_:
         if not np.array_equal(color, np.array(white)):
             return False
     return True
 
 
-def all_green_cells(colors_):
+def all_green_cells(colors_: list[ColorRGB]) -> bool:
     for color in colors_:
         if not np.array_equal(color, np.array(green)):
             return False
     return True
 
 
-def color_squares(colors_):
+def color_squares(colors_: list[ColorRGB]) -> str:
     result = ""
     for color in colors_:
-        color_tuple = tuple(elem for elem in color)
-        result += colored(' ■', color_map[color_tuple])  # type: ignore
+        result += colored(' ■', color_map[color])
     return result
 
 

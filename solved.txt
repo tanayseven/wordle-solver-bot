@@ -1,2 +1,1 @@
-CellBounds = list[tuple[tuple[Any, Any], tuple[Any, Any]]]
-RowWithCellBounds = tuple[CellBounds, CellBounds, CellBounds, CellBounds, CellBounds]
+        color_tuple = (elem for elem in color)
