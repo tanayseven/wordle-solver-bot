@@ -10,12 +10,12 @@ pillow = "*"
 numpy = "*"
 opencv-python = "*"
 tk = "*"
-clipboard = "*"
 termcolor = "*"
 letter = "*"
 wordlesolver = "*"
 self = "*"
 gray = "*"
+pyperclip = "*"
 
 [requires]
 python_version = "3.10"

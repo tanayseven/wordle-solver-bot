@@ -48,31 +48,31 @@ class WordsRepository:
         return self._words
 
     def remember_not_at(
-        self, current_word: str, at_positions: list[int]
+        self, letter: str, at_positions: list[int]
     ) -> "WordsRepository":
         new_set_of_words = tuple(
             word
             for word in self._words
             if all(
-                word[position] != current_word[position]
-                and current_word[position] in word
+                word[position] != letter[position]
+                and letter[position] in word
                 for position in at_positions
             )
         )
         return WordsRepository(new_set_of_words, self._letters_to_remember_at)
 
     def remember_at(
-        self, current_word: str, at_positions: list[int]
+        self, letter: str, at_positions: list[int]
     ) -> "WordsRepository":
         new_set_of_words = tuple(
             word
             for word in self._words
             if all(
-                word[position] == current_word[position] for position in at_positions
+                word[position] == letter[position] for position in at_positions
             )
         )
         new_letters_to_remember_at = tuple(
-            letters + current_word[letter_index]
+            letters + letter[letter_index]
             if letter_index in at_positions
             else letters
             for letter_index, letters in enumerate(self._letters_to_remember_at)

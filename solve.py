@@ -6,9 +6,9 @@ import subprocess
 import time
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Tuple, Final
+from typing import Tuple, Final, List, Any
 
-import clipboard
+from pyperclip import paste
 import cv2
 import numpy as np
 import pyautogui
@@ -48,13 +48,13 @@ def opened_browser(on_date: datetime.date):
     os.killpg(os.getpgid(browser_process.pid), signal.SIGKILL)
 
 
-def closable_modal_is_open():
+def closable_modal_is_open() -> bool:
     logging.info("Checking if closable modal is open")
-    close_modal = cv2.imread("objects/close-modal.png", cv2.IMREAD_UNCHANGED)
-    return is_object_spotted(close_modal)
+    close_modal_ = cv2.imread("objects/close-modal.png", cv2.IMREAD_UNCHANGED)
+    return is_object_spotted(close_modal_)
 
 
-def check_if_game_has_started():
+def check_if_game_has_started() -> bool:
     logging.info("Checking if game has started")
     wordle_title = cv2.imread("objects/wordle_title.png", cv2.IMREAD_UNCHANGED)
     tries = 100
@@ -64,10 +64,10 @@ def check_if_game_has_started():
     return False
 
 
-def is_object_spotted(close_modal):
+def is_object_spotted(close_modal_: np.ndarray) -> bool:
     take_a_screenshot()
     screenshot = cv2.imread(screen_shot_location, cv2.IMREAD_UNCHANGED)
-    result = cv2.matchTemplate(screenshot, close_modal, cv2.TM_CCOEFF_NORMED)
+    result = cv2.matchTemplate(screenshot, close_modal_, cv2.TM_CCOEFF_NORMED)
     threshold = .90
     yloc, xloc = np.where(result >= threshold)
     if len(xloc) == 0 or len(yloc) == 0:
@@ -77,14 +77,14 @@ def is_object_spotted(close_modal):
 
 def close_modal():
     logging.info("Closing the modal")
-    close_modal = cv2.imread("objects/close-modal.png", cv2.IMREAD_UNCHANGED)
+    close_modal_ = cv2.imread("objects/close-modal.png", cv2.IMREAD_UNCHANGED)
     take_a_screenshot()
     screenshot = cv2.imread(screen_shot_location, cv2.IMREAD_UNCHANGED)
-    result = cv2.matchTemplate(screenshot, close_modal, cv2.TM_CCOEFF_NORMED)
+    result = cv2.matchTemplate(screenshot, close_modal_, cv2.TM_CCOEFF_NORMED)
     _, __, ___, max_loc = cv2.minMaxLoc(result)
     click_location = (
-        max_loc[0] + close_modal.shape[0] / 2,
-        max_loc[1] + close_modal.shape[1] / 2,
+        max_loc[0] + close_modal_.shape[0] / 2,
+        max_loc[1] + close_modal_.shape[1] / 2,
     )
     pyautogui.click(x=click_location[0], y=click_location[1], interval=0.5)
 
@@ -115,7 +115,10 @@ def move_mouse(edges: Tuple[int, int, int, int], duration: float = 0.5):
     pyautogui.moveTo(x=edges[2], y=edges[3], duration=duration)
 
 
-def partition_the_grid():
+def partition_the_grid() -> tuple[
+    list[tuple[tuple[Any, Any], tuple[Any, Any]]], list[tuple[tuple[Any, Any], tuple[Any, Any]]], list[
+        tuple[tuple[Any, Any], tuple[Any, Any]]], list[tuple[tuple[Any, Any], tuple[Any, Any]]], list[
+        tuple[tuple[Any, Any], tuple[Any, Any]]], list[tuple[tuple[Any, Any], tuple[Any, Any]]]]:
     take_a_screenshot()
     screen_shot = cv2.imread("screen-shot.png", cv2.IMREAD_UNCHANGED)
     grid_cell = cv2.imread("objects/blank_grid.png", cv2.IMREAD_UNCHANGED)
@@ -131,18 +134,14 @@ def partition_the_grid():
             images.append(((pt[1], pt[1] + h), (pt[0], pt[0] + w)))
             cv2.rectangle(screen_shot, pt, (pt[0] + w, pt[1] + h), (0, 255, 0), 1)
     cv2.imwrite("marked_screenshot.png", screen_shot)
-    return images
-
-
-def split_rows(seq):
-    return seq[0:5], seq[5:10], seq[10:15], seq[15:20], seq[20:25], seq[25:30]
+    return images[0:5], images[5:10], images[10:15], images[15:20], images[20:25], images[25:30]
 
 
 CellBounds = tuple[tuple[int, int], tuple[int, int]]
 RowWithCellBounds = list[tuple[CellBounds, CellBounds, CellBounds, CellBounds, CellBounds]]
 
 
-def letter_colours(row: RowWithCellBounds, number=0):
+def letter_colours(row: RowWithCellBounds, number=0) -> list[tuple[int, int, int]]:
     take_a_screenshot()
     screen_shot = cv2.imread("screen-shot.png", cv2.IMREAD_UNCHANGED)
     grid_colours = []
@@ -224,8 +223,6 @@ if __name__ == '__main__':
             close_modal()
         wait_till_animation_end()
         partitions = partition_the_grid()
-        partitions = split_rows(partitions)
-        i = 0
         while True:
             logging.info(f"I have {len(wordle_solver.remaining_words_in_memory)} words in my memory 🧠")
             if len(wordle_solver.remaining_words_in_memory) == 0:
@@ -235,11 +232,10 @@ if __name__ == '__main__':
                 logging.info("Looks like I used up all the attempts 😞")
                 break
             wordle_solver = wordle_solver.get_random_word()
-            i = wordle_solver.current_row
             wait_till_animation_end()
             enter_a_word(wordle_solver.current_word.upper())
             wait_till_animation_end(checks=2)
-            colors = letter_colours(partitions[i], i)
+            colors = letter_colours(partitions[wordle_solver.current_row], wordle_solver.current_row)
             if all_white_cells(colors):
                 logging.info("Looks like the game does not know this word 🤷‍")
                 for _ in range(5):
@@ -260,7 +256,6 @@ if __name__ == '__main__':
                     grey_letters=cleaned_grey_words,
                 )
                 logging.info(f"I'm forgetting the non-needed words from my memory 🧠")
-        time.sleep(1)
-        clipped = clipboard.paste()
+        clipped = paste()
         Path("solved.txt").write_text(clipped)
         logging.info(f"I'm closing the browser now")
