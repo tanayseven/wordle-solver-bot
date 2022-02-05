@@ -1,6 +1,20 @@
 import json
 from pathlib import Path
-from typing import Final
+from random import randrange
+from typing import Final, Literal
+
+ColorRGB = tuple[int, int, int]
+grey: Final[ColorRGB] = (124, 120, 126)
+white: Final[ColorRGB] = (255, 255, 255)
+green: Final[ColorRGB] = (170, 106, 100)
+yellow: Final[ColorRGB] = (180, 201, 88)
+ColorName = Literal["grey", "green", "yellow", "white"]
+color_map: Final[dict[ColorRGB, ColorName]] = {
+    grey: "grey",
+    green: "green",
+    yellow: "yellow",
+    white: "white",
+}
 
 
 class WordsRepository:
@@ -60,3 +74,43 @@ class WordsRepository:
             if word != word_to_forget
         )
         return WordsRepository(new_set_of_words, self._letters_to_remember_at)
+
+
+class WordleSolver:
+    def __init__(self, words_repo: WordsRepository, current_row: int = 0, current_word=""):
+        self._words_repo: Final[WordsRepository] = words_repo
+        self._current_row: Final[int] = current_row
+        self._current_word: Final[str] = current_word
+
+    @property
+    def current_row(self) -> int:
+        return self._current_row
+
+    @property
+    def current_word(self) -> str:
+        return self._current_word
+
+    @property
+    def remaining_words_in_memory(self) -> tuple[str]:
+        return self._words_repo.remaining_words
+
+    def get_random_word(self) -> "WordleSolver":
+        new_current_word = self._words_repo.remaining_words[randrange(0, len(self._words_repo.remaining_words))]
+        return WordleSolver(
+            self._words_repo.forget_word(new_current_word),
+            self._current_row,
+            new_current_word,
+        )
+
+    def highlighted_for_current_word(self, yellow_letters: list[int], green_letters: list[int],
+                                     grey_letters: str) -> "WordleSolver":
+        words_repo = self._words_repo
+        words_repo = words_repo.remember_at(self.current_word, green_letters)
+        words_repo = words_repo.remember_not_at(self.current_word, yellow_letters)
+        new_words_repo = words_repo.forget(grey_letters)
+        new_words_repo = new_words_repo.forget_word(self._current_word)
+        return WordleSolver(
+            new_words_repo,
+            self._current_row + 1,
+            new_words_repo,
+        )

@@ -1,11 +1,12 @@
+import datetime
 import logging
 import os
 import signal
 import subprocess
 import time
+from contextlib import contextmanager
 from pathlib import Path
-from random import randrange
-from typing import Tuple, Final, Literal
+from typing import Tuple, Final
 
 import clipboard
 import cv2
@@ -14,7 +15,7 @@ import pyautogui
 from PIL import ImageGrab, Image
 from termcolor import colored
 
-from core import WordsRepository
+from core import WordsRepository, WordleSolver, white, green, color_map, ColorRGB, ColorName
 
 
 def enter_a_word(word: str):
@@ -33,13 +34,18 @@ def take_a_screenshot(area: Tuple[int, int, int, int] = screen_area) -> Image:
     return screenshot
 
 
-browser_process = subprocess.Popen(
-    ["faketime", "2022-01-26", "chromium", "https://www.powerlanguage.co.uk/wordle/", "--window-size=700,1000",
-     "--window-position=0,0", "--new-window", "--incognito",
-     ],
-    stdout=subprocess.DEVNULL,
-    stderr=subprocess.STDOUT,
-    preexec_fn=os.setsid)
+@contextmanager
+def opened_browser(on_date: datetime.date):
+    browser_process = subprocess.Popen(
+        ["faketime", f"{on_date.isoformat()}", "chromium", "https://www.powerlanguage.co.uk/wordle/", "--window-size=700,1000",
+         "--window-position=0,0", "--new-window", "--incognito",
+         ],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.STDOUT,
+        preexec_fn=os.setsid,
+    )
+    yield
+    os.killpg(os.getpgid(browser_process.pid), signal.SIGKILL)
 
 
 def closable_modal_is_open():
@@ -132,19 +138,6 @@ def split_rows(seq):
     return seq[0:5], seq[5:10], seq[10:15], seq[15:20], seq[20:25], seq[25:30]
 
 
-ColorRGB = tuple[int, int, int]
-grey: Final[ColorRGB] = (124, 120, 126)
-white: Final[ColorRGB] = (255, 255, 255)
-green: Final[ColorRGB] = (170, 106, 100)
-yellow: Final[ColorRGB] = (180, 201, 88)
-ColorName = Literal["grey", "green", "yellow", "white"]
-color_map: Final[dict[ColorRGB, ColorName]] = {
-    grey: "grey",
-    green: "green",
-    yellow: "yellow",
-    white: "white",
-}
-
 CellBounds = tuple[tuple[int, int], tuple[int, int]]
 RowWithCellBounds = list[tuple[CellBounds, CellBounds, CellBounds, CellBounds, CellBounds]]
 
@@ -214,98 +207,60 @@ def fetch_yellow_words(word_: str, colors_: list[ColorName]) -> list[int]:
     return letters
 
 
-class WordleSolver:
-    def __init__(self, words_repo: WordsRepository, current_row: int = 0, current_word=""):
-        self._words_repo: Final[WordsRepository] = words_repo
-        self._current_row: Final[int] = current_row
-        self._current_word: Final[str] = current_word
-
-    @property
-    def current_row(self) -> int:
-        return self._current_row
-
-    @property
-    def current_word(self) -> str:
-        return self._current_word
-
-    @property
-    def remaining_words_in_memory(self) -> tuple[str]:
-        return self._words_repo.remaining_words
-
-    def get_random_word(self) -> "WordleSolver":
-        new_current_word = self._words_repo.remaining_words[randrange(0, len(self._words_repo.remaining_words))]
-        return WordleSolver(
-            self._words_repo.forget_word(new_current_word),
-            self._current_row,
-            new_current_word,
-        )
-
-    def highlighted_for_current_word(self, yellow_letters: list[int], green_letters: list[int], grey_letters: str) -> "WordleSolver":
-        words_repo = self._words_repo
-        words_repo = words_repo.remember_at(self.current_word, green_letters)
-        words_repo = words_repo.remember_not_at(self.current_word, yellow_letters)
-        new_words_repo = words_repo.forget(grey_letters)
-        new_words_repo = new_words_repo.forget_word(self._current_word)
-        return WordleSolver(
-            new_words_repo,
-            self._current_row+1,
-            new_words_repo,
-        )
-
-
 def eliminate_greys_having_green_and_yellow(grey_words, current_word, green_words_indexes, yellow_words_indexes):
     green_words = str([current_word[index] for index in green_words_indexes])
     yellow_words = str([current_word[index] for index in yellow_words_indexes])
     return str([letter for letter in grey_words if letter not in green_words and letter not in yellow_words])
 
 
-
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format="[⌚ %(asctime)s] Wordle Bot: \"%(message)s\"")
-    wordle_solver = WordleSolver(WordsRepository())
-    check_if_game_has_started()
-    wait_till_animation_end()
-    if closable_modal_is_open():
-        close_modal()
-    wait_till_animation_end()
-    partitions = partition_the_grid()
-    partitions = split_rows(partitions)
-    i = 0
-    while True:
-        logging.info(f"I have {len(wordle_solver.remaining_words_in_memory)} words in my memory 🧠")
-        if len(wordle_solver.remaining_words_in_memory) == 0:
-            logging.info(f"I don't know the word the game wants me to guess 😞")
-            break
-        if wordle_solver.current_row == 6:
-            logging.info("Looks like I used up all the attempts 😞")
-            break
-        wordle_solver = wordle_solver.get_random_word()
-        i = wordle_solver.current_row
+    logging.info(f"Opening browser: {datetime.date.today().isoformat()}")
+    with opened_browser(datetime.date.today()):
+        wordle_solver = WordleSolver(WordsRepository())
+        check_if_game_has_started()
         wait_till_animation_end()
-        enter_a_word(wordle_solver.current_word.upper())
-        wait_till_animation_end(checks=2)
-        colors = letter_colours(partitions[i], i)
-        if all_white_cells(colors):
-            logging.info("Looks like the game does not know this word 🤷‍")
-            for _ in range(5):
-                pyautogui.press("backspace")
-        elif all_green_cells(colors):
-            logging.info("Looks like I won the game 🙋")
-            break
-        else:
-            logging.info(f"I see the colors 👀{color_squares(colors)}")
-            yellow_words = fetch_yellow_words(wordle_solver.current_word, color_names(colors))
-            green_words = fetch_green_words(wordle_solver.current_word, color_names(colors))
-            grey_words = fetch_grey_words(wordle_solver.current_word, color_names(colors))
-            cleaned_grey_words = eliminate_greys_having_green_and_yellow(grey_words, wordle_solver.current_word, green_words, yellow_words)
-            wordle_solver = wordle_solver.highlighted_for_current_word(
-                yellow_letters=yellow_words,
-                green_letters=green_words,
-                grey_letters=cleaned_grey_words,
-            )
-            logging.info(f"I'm forgetting the non-needed words from my memory 🧠")
-    time.sleep(1)
-    clipped = clipboard.paste()
-    Path("solved.txt").write_text(clipped)
-    logging.info(f"I'm closing the browser now")
-    os.killpg(os.getpgid(browser_process.pid), signal.SIGKILL)
+        if closable_modal_is_open():
+            close_modal()
+        wait_till_animation_end()
+        partitions = partition_the_grid()
+        partitions = split_rows(partitions)
+        i = 0
+        while True:
+            logging.info(f"I have {len(wordle_solver.remaining_words_in_memory)} words in my memory 🧠")
+            if len(wordle_solver.remaining_words_in_memory) == 0:
+                logging.info(f"I don't know the word the game wants me to guess 😞")
+                break
+            if wordle_solver.current_row == 6:
+                logging.info("Looks like I used up all the attempts 😞")
+                break
+            wordle_solver = wordle_solver.get_random_word()
+            i = wordle_solver.current_row
+            wait_till_animation_end()
+            enter_a_word(wordle_solver.current_word.upper())
+            wait_till_animation_end(checks=2)
+            colors = letter_colours(partitions[i], i)
+            if all_white_cells(colors):
+                logging.info("Looks like the game does not know this word 🤷‍")
+                for _ in range(5):
+                    pyautogui.press("backspace")
+            elif all_green_cells(colors):
+                logging.info("Looks like I won the game 🙋")
+                break
+            else:
+                logging.info(f"I see the colors 👀{color_squares(colors)}")
+                yellow_words = fetch_yellow_words(wordle_solver.current_word, color_names(colors))
+                green_words = fetch_green_words(wordle_solver.current_word, color_names(colors))
+                grey_words = fetch_grey_words(wordle_solver.current_word, color_names(colors))
+                cleaned_grey_words = eliminate_greys_having_green_and_yellow(grey_words, wordle_solver.current_word,
+                                                                             green_words, yellow_words)
+                wordle_solver = wordle_solver.highlighted_for_current_word(
+                    yellow_letters=yellow_words,
+                    green_letters=green_words,
+                    grey_letters=cleaned_grey_words,
+                )
+                logging.info(f"I'm forgetting the non-needed words from my memory 🧠")
+        time.sleep(1)
+        clipped = clipboard.paste()
+        Path("solved.txt").write_text(clipped)
+        logging.info(f"I'm closing the browser now")

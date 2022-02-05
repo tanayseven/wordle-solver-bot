@@ -1,1 +1,12 @@
-        print('-------------')
+ColorRGB = tuple[int, int, int]
+grey: Final[ColorRGB] = (124, 120, 126)
+white: Final[ColorRGB] = (255, 255, 255)
+green: Final[ColorRGB] = (170, 106, 100)
+yellow: Final[ColorRGB] = (180, 201, 88)
+ColorName = Literal["grey", "green", "yellow", "white"]
+color_map: Final[dict[ColorRGB, ColorName]] = {
+    grey: "grey",
+    green: "green",
+    yellow: "yellow",
+    white: "white",
+}
