@@ -5,13 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0e97c16b-94b0-4357-bd63-a9951d3adea3" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Pipfile.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core.py" beforeDir="false" afterPath="$PROJECT_DIR$/core.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/marked_screenshot.png" beforeDir="false" afterPath="$PROJECT_DIR$/marked_screenshot.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/screen-shot.png" beforeDir="false" afterPath="$PROJECT_DIR$/screen-shot.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/solve.py" beforeDir="false" afterPath="$PROJECT_DIR$/solve.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/solved.txt" beforeDir="false" afterPath="$PROJECT_DIR$/solved.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,7 +44,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1644092358881</updated>
-      <workItem from="1644092360077" duration="4688000" />
+      <workItem from="1644092360077" duration="5600000" />
     </task>
     <servers />
   </component>
