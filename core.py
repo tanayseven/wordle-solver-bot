@@ -1,13 +1,14 @@
 import json
+from collections import namedtuple
 from pathlib import Path
 from random import randrange
 from typing import Final, Literal
 
-ColorRGB = tuple[int, int, int]
-grey: Final[ColorRGB] = (124, 120, 126)
-white: Final[ColorRGB] = (255, 255, 255)
-green: Final[ColorRGB] = (170, 106, 100)
-yellow: Final[ColorRGB] = (180, 201, 88)
+ColorRGB = namedtuple("ColorRGB", ["r", "g", "b"])
+grey: Final[ColorRGB] = ColorRGB(124, 120, 126)
+white: Final[ColorRGB] = ColorRGB(255, 255, 255)
+green: Final[ColorRGB] = ColorRGB(170, 106, 100)
+yellow: Final[ColorRGB] = ColorRGB(180, 201, 88)
 ColorName = Literal["grey", "green", "yellow", "white"]
 color_map: Final[dict[ColorRGB, ColorName]] = {
     grey: "grey",

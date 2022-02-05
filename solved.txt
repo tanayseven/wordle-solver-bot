@@ -1,1 +1,2 @@
-        partitions = split_rows(partitions)
+CellBounds = list[tuple[tuple[Any, Any], tuple[Any, Any]]]
+RowWithCellBounds = tuple[CellBounds, CellBounds, CellBounds, CellBounds, CellBounds]

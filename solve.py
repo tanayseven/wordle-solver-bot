@@ -6,16 +6,20 @@ import subprocess
 import time
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Tuple, Final, List, Any
+from typing import Tuple, Final, Any, List
 
-from pyperclip import paste
-import cv2
+import cv2  # type: ignore
 import numpy as np
-import pyautogui
-from PIL import ImageGrab, Image
-from termcolor import colored
+import pyautogui  # type: ignore
+from PIL import ImageGrab, Image  # type: ignore
+from pyperclip import paste  # type: ignore
+from termcolor import colored  # type: ignore
 
 from core import WordsRepository, WordleSolver, white, green, color_map, ColorRGB, ColorName
+
+
+CellBounds = list[tuple[tuple[Any, Any], tuple[Any, Any]]]
+RowWithCellBounds = tuple[CellBounds, CellBounds, CellBounds, CellBounds, CellBounds]
 
 
 def enter_a_word(word: str):
@@ -37,7 +41,8 @@ def take_a_screenshot(area: Tuple[int, int, int, int] = screen_area) -> Image:
 @contextmanager
 def opened_browser(on_date: datetime.date):
     browser_process = subprocess.Popen(
-        ["faketime", f"{on_date.isoformat()}", "chromium", "https://www.powerlanguage.co.uk/wordle/", "--window-size=700,1000",
+        ["faketime", f"{on_date.isoformat()}", "chromium", "https://www.powerlanguage.co.uk/wordle/",
+         "--window-size=700,1000",
          "--window-position=0,0", "--new-window", "--incognito",
          ],
         stdout=subprocess.DEVNULL,
@@ -116,9 +121,13 @@ def move_mouse(edges: Tuple[int, int, int, int], duration: float = 0.5):
 
 
 def partition_the_grid() -> tuple[
-    list[tuple[tuple[Any, Any], tuple[Any, Any]]], list[tuple[tuple[Any, Any], tuple[Any, Any]]], list[
-        tuple[tuple[Any, Any], tuple[Any, Any]]], list[tuple[tuple[Any, Any], tuple[Any, Any]]], list[
-        tuple[tuple[Any, Any], tuple[Any, Any]]], list[tuple[tuple[Any, Any], tuple[Any, Any]]]]:
+    CellBounds,
+    CellBounds,
+    CellBounds,
+    CellBounds,
+    CellBounds,
+    CellBounds,
+]:
     take_a_screenshot()
     screen_shot = cv2.imread("screen-shot.png", cv2.IMREAD_UNCHANGED)
     grid_cell = cv2.imread("objects/blank_grid.png", cv2.IMREAD_UNCHANGED)
@@ -137,18 +146,15 @@ def partition_the_grid() -> tuple[
     return images[0:5], images[5:10], images[10:15], images[15:20], images[20:25], images[25:30]
 
 
-CellBounds = tuple[tuple[int, int], tuple[int, int]]
-RowWithCellBounds = list[tuple[CellBounds, CellBounds, CellBounds, CellBounds, CellBounds]]
-
-
-def letter_colours(row: RowWithCellBounds, number=0) -> list[tuple[int, int, int]]:
+def letter_colours(row: CellBounds, number=0) -> list[ColorRGB]:
     take_a_screenshot()
     screen_shot = cv2.imread("screen-shot.png", cv2.IMREAD_UNCHANGED)
-    grid_colours = []
+    grid_colours: list[ColorRGB] = []
     for i, ((x1, y1), (x2, y2)) in enumerate(row):
         grid_cell = screen_shot[x1:y1, x2:y2]
         colors_, count = np.unique(grid_cell.reshape(-1, 4), axis=0, return_counts=True)
-        grid_colours.append(tuple(colors_[count.argmax()][:3]))
+        rgb_tuple = colors_[count.argmax()][:3]
+        grid_colours.append(ColorRGB(rgb_tuple[0], rgb_tuple[1], rgb_tuple[2]))
         cv2.imwrite(f"grid/{i}-{number}.png", grid_cell)
     return grid_colours
 
@@ -171,7 +177,7 @@ def color_squares(colors_):
     result = ""
     for color in colors_:
         color_tuple = tuple(elem for elem in color)
-        result += colored(' ■', color_map[color_tuple])
+        result += colored(' ■', color_map[color_tuple])  # type: ignore
     return result
 
 
@@ -190,7 +196,7 @@ def fetch_grey_words(word_: str, colors_: list[ColorName]) -> str:
     return letters
 
 
-def fetch_green_words(word_, colors_: list[ColorName]) -> list[int]:
+def fetch_green_words(word_: str, colors_: list[ColorName]) -> list[int]:
     letters = []
     for i, _ in enumerate(word_):
         if colors_[i] == "green":
@@ -206,10 +212,18 @@ def fetch_yellow_words(word_: str, colors_: list[ColorName]) -> list[int]:
     return letters
 
 
-def eliminate_greys_having_green_and_yellow(grey_words, current_word, green_words_indexes, yellow_words_indexes):
-    green_words = str([current_word[index] for index in green_words_indexes])
-    yellow_words = str([current_word[index] for index in yellow_words_indexes])
-    return str([letter for letter in grey_words if letter not in green_words and letter not in yellow_words])
+def eliminate_greys_having_green_and_yellow(
+        grey_letters_: str,
+        current_word: str,
+        green_words_indexes: list[int],
+        yellow_words_indexes: list[int],
+):
+    green_letters_ = str([current_word[index] for index in green_words_indexes])
+    yellow_letters_ = str([current_word[index] for index in yellow_words_indexes])
+    return str([
+        letter for letter in grey_letters_
+        if letter not in green_letters_ and letter not in yellow_letters_
+    ])
 
 
 if __name__ == '__main__':
@@ -245,14 +259,18 @@ if __name__ == '__main__':
                 break
             else:
                 logging.info(f"I see the colors 👀{color_squares(colors)}")
-                yellow_words = fetch_yellow_words(wordle_solver.current_word, color_names(colors))
-                green_words = fetch_green_words(wordle_solver.current_word, color_names(colors))
-                grey_words = fetch_grey_words(wordle_solver.current_word, color_names(colors))
-                cleaned_grey_words = eliminate_greys_having_green_and_yellow(grey_words, wordle_solver.current_word,
-                                                                             green_words, yellow_words)
+                yellow_letters = fetch_yellow_words(wordle_solver.current_word, color_names(colors))
+                green_letters = fetch_green_words(wordle_solver.current_word, color_names(colors))
+                grey_letters = fetch_grey_words(wordle_solver.current_word, color_names(colors))
+                cleaned_grey_words = eliminate_greys_having_green_and_yellow(
+                    grey_letters,
+                    wordle_solver.current_word,
+                    green_letters,
+                    yellow_letters
+                )
                 wordle_solver = wordle_solver.highlighted_for_current_word(
-                    yellow_letters=yellow_words,
-                    green_letters=green_words,
+                    yellow_letters=yellow_letters,
+                    green_letters=green_letters,
                     grey_letters=cleaned_grey_words,
                 )
                 logging.info(f"I'm forgetting the non-needed words from my memory 🧠")
