@@ -58,6 +58,12 @@ def closable_modal_is_open() -> bool:
     return is_object_spotted(close_modal_)
 
 
+def winner_modal_is_open() -> bool:
+    logging.info("Checking if winner modal is open")
+    close_modal_ = cv2.imread("objects/share-button.png", cv2.IMREAD_UNCHANGED)
+    return is_object_spotted(close_modal_)
+
+
 def check_if_game_has_started() -> bool:
     logging.info("Checking if game has started")
     wordle_title = cv2.imread("objects/wordle_title.png", cv2.IMREAD_UNCHANGED)

@@ -116,6 +116,13 @@ class WordleSolver:
             new_current_word,
         )
 
+    def reset_row(self) -> "WordleSolver":
+        return WordleSolver(
+            self._words_repo,
+            0,
+            self.current_word,
+        )
+
     def highlighted_for_current_word(
         self, yellow_letters: list[int], green_letters: list[int], grey_letters: str
     ) -> "WordleSolver":

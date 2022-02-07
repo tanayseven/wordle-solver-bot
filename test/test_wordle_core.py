@@ -1,9 +1,8 @@
 from core import WordsRepository
 
 
-# TODO: Parameterize this test
 def test_forget_letters():
-    word_solver = WordsRepository(("cat", "dog", "bat", "mat"))
+    word_solver = WordsRepository(("", "", "", "", ""))
     new_word_solver = word_solver.forget("CB")
     assert len(new_word_solver.remaining_words) == 2
     assert "dog" in new_word_solver.remaining_words
