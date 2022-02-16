@@ -33,7 +33,7 @@ def opened_browser(on_date: datetime.date):
             "--window-position=0,0",
             "--new-window",
             "--incognito",
-         ],
+        ],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.STDOUT,
         preexec_fn=os.setsid,
@@ -69,6 +69,7 @@ if __name__ == '__main__':
                         break
                     if wordle_solver.current_row == 6:
                         logging.info("Looks like I used up all the attempts 😞")
+                        wordle_solver.reset_row()
                         break
                     wordle_solver = wordle_solver.get_random_word()
                     wait_till_animation_end()
@@ -85,7 +86,7 @@ if __name__ == '__main__':
                         game_won = True
                         break
                     else:
-                        logging.info(f"I see the colors 👀{color_squares(colors)}")
+                        logging.info(f"I see the colors 👀{color_squares(colors, wordle_solver.current_word)}")
                         yellow_letters = fetch_yellow_words(wordle_solver.current_word, color_names(colors))
                         green_letters = fetch_green_words(wordle_solver.current_word, color_names(colors))
                         grey_letters = fetch_grey_words(wordle_solver.current_word, color_names(colors))
@@ -107,7 +108,6 @@ if __name__ == '__main__':
                     time.sleep(0.3)
         logging.info("Ended the game")
         pyautogui.click(x=1000, y=700, interval=0.5)
-        pyautogui.getWindowsWithTitle("*wordle_solver_bot*")[0].activate()
         if game_won:
             output = pyperclip.paste()
             logging.info(f"My winning details details \n {output}")

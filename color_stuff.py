@@ -39,10 +39,10 @@ def all_green_cells(colors_: list[ColorRGB]) -> bool:
     return True
 
 
-def color_squares(colors_: list[ColorRGB]) -> str:
+def color_squares(colors_: list[ColorRGB], word: str) -> str:
     result = ""
-    for color in colors_:
-        result += colored(' ■', color_map[color])
+    for i, color in enumerate(colors_):
+        result += colored(f' {word[i].upper()} ', "white", f"on_{color_map[color]}")
     return result
 
 
