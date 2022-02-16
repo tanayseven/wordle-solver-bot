@@ -8,7 +8,8 @@ from contextlib import contextmanager
 
 import cv2  # type: ignore
 import pyautogui  # type: ignore
-import tkinter as tk
+
+import pyperclip
 from PIL import ImageGrab, Image  # type: ignore
 from termcolor import colored  # type: ignore
 
@@ -43,12 +44,12 @@ def opened_browser(on_date: datetime.date):
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format="[⌚ %(asctime)s] Wordle Bot: \"%(message)s\"")
-    logging.info(f"Opening browser for date {datetime.date.today().isoformat()}")
     date = datetime.date.fromisoformat("2021-10-01")
     one_day = datetime.timedelta(days=1)
     date -= one_day
-    while date.isoformat() != "2022-01-31":
+    while date.isoformat() != "2022-02-31":
         date += one_day
+        logging.info(f"Opening browser for date {date.isoformat()}")
         wordle_solver = WordleSolver(WordsRepository())
         game_won = False
         while not game_won:
@@ -105,6 +106,8 @@ if __name__ == '__main__':
                     click_share_button()
                     time.sleep(0.3)
         logging.info("Ended the game")
-        root = tk.Tk()
-        result = root.clipboard_get()
-        logging.info(f"My winning details details \n {result}")
+        pyautogui.click(x=1000, y=700, interval=0.5)
+        pyautogui.getWindowsWithTitle("*wordle_solver_bot*")[0].activate()
+        if game_won:
+            output = pyperclip.paste()
+            logging.info(f"My winning details details \n {output}")
