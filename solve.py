@@ -9,7 +9,7 @@ from contextlib import contextmanager
 import cv2  # type: ignore
 import pyautogui  # type: ignore
 
-import pyperclip
+import pyperclip  # type: ignore
 from PIL import ImageGrab, Image  # type: ignore
 from termcolor import colored  # type: ignore
 

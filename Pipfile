@@ -4,21 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-pelican-add-css-classes = "==1.0.4"
 pyautogui = "*"
 pillow = "*"
 numpy = "*"
 opencv-python = "*"
-tk = "*"
 termcolor = "*"
-letter = "*"
-wordlesolver = "*"
-self = "*"
-gray = "*"
 pyperclip = "*"
-pyclip = "*"
-pygetwindow = "*"
-python3-xlib = "*"
 
 [requires]
 python_version = "3.10"
