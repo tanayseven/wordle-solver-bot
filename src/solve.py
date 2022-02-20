@@ -5,6 +5,7 @@ import signal
 import subprocess
 import time
 from contextlib import contextmanager
+from pathlib import Path
 
 import cv2  # type: ignore
 import pyautogui  # type: ignore
@@ -38,8 +39,21 @@ def opened_browser(on_date: datetime.date):
         stderr=subprocess.STDOUT,
         preexec_fn=os.setsid,
     )
+    wordle_server_process = subprocess.Popen(
+        [
+            "python",
+            "-m",
+            "http.server",
+            "--directory",
+            str(Path("../worlde_server_files").absolute()),
+        ],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.STDOUT,
+        preexec_fn=os.setsid,
+    )
     yield
     os.killpg(os.getpgid(browser_process.pid), signal.SIGKILL)
+    os.killpg(os.getpgid(wordle_server_process.pid), signal.SIGKILL)
 
 
 if __name__ == '__main__':
