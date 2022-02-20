@@ -6,12 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="0e97c16b-94b0-4357-bd63-a9951d3adea3" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pipfile" beforeDir="false" afterPath="$PROJECT_DIR$/Pipfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pipfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Pipfile.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core.py" beforeDir="false" afterPath="$PROJECT_DIR$/core.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/marked_screenshot.png" beforeDir="false" afterPath="$PROJECT_DIR$/marked_screenshot.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/screen-shot.png" beforeDir="false" afterPath="$PROJECT_DIR$/screen-shot.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/solve.py" beforeDir="false" afterPath="$PROJECT_DIR$/solve.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/test_wordle_core.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/test_wordle_core.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -21,6 +16,14 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -40,7 +43,7 @@
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
-    <property name="settings.editor.selected.configurable" value="project.scopes" />
+    <property name="settings.editor.selected.configurable" value="preferences.sourceCode.Less" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -57,7 +60,9 @@
       <updated>1644092358881</updated>
       <workItem from="1644092360077" duration="7501000" />
       <workItem from="1644630980838" duration="36738000" />
-      <workItem from="1645304577576" duration="5434000" />
+      <workItem from="1645304577576" duration="8300000" />
+      <workItem from="1645365844277" duration="7879000" />
+      <workItem from="1645384747485" duration="177000" />
     </task>
     <servers />
   </component>

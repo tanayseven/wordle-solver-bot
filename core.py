@@ -24,6 +24,7 @@ class WordsRepository:
         words: tuple[str, ...] = None,
         letters_to_remember_at: tuple[str, str, str, str, str] = ("", "", "", "", ""),
     ):
+        words = None if words is None else tuple(word.lower() for word in words)
         self._words: Final[tuple[str]] = (
             json.loads(Path("words_dictionary.json").read_text())
             if words is None
@@ -34,6 +35,7 @@ class WordsRepository:
         ] = letters_to_remember_at
 
     def forget(self, grey_letters: str) -> "WordsRepository":
+        grey_letters = grey_letters.lower()
         words_to_remember = tuple(
             word
             for word in self._words
@@ -51,6 +53,7 @@ class WordsRepository:
     def remember_not_at(
         self, current_word: str, at_positions: list[int]
     ) -> "WordsRepository":
+        current_word = current_word.lower()
         new_set_of_words = tuple(
             word
             for word in self._words
@@ -65,6 +68,7 @@ class WordsRepository:
     def remember_at(
         self, current_word: str, at_positions: list[int]
     ) -> "WordsRepository":
+        current_word = current_word.lower()
         new_set_of_words = tuple(
             word
             for word in self._words
@@ -81,6 +85,7 @@ class WordsRepository:
         return WordsRepository(new_set_of_words, new_letters_to_remember_at)  # type: ignore
 
     def forget_word(self, word_to_forget: str):
+        word_to_forget = word_to_forget.lower()
         word_to_forget = word_to_forget.lower()
         new_set_of_words = tuple(word for word in self._words if word != word_to_forget)
         return WordsRepository(new_set_of_words, self._letters_to_remember_at)
