@@ -9,7 +9,6 @@ from pathlib import Path
 
 import cv2  # type: ignore
 import pyautogui  # type: ignore
-
 import pyperclip  # type: ignore
 from PIL import ImageGrab, Image  # type: ignore
 from termcolor import colored  # type: ignore
@@ -18,6 +17,7 @@ from actuator import enter_a_word, close_modal, move_mouse, click_share_button
 from color_stuff import letter_colours, all_white_cells, all_green_cells, color_squares, color_names, fetch_grey_words, \
     fetch_green_words, fetch_yellow_words, eliminate_greys_having_green_and_yellow
 from core import WordsRepository, WordleSolver
+from screen_stuff import new_working_directory_location
 from sensor import wait_till_animation_end, closable_modal_is_open, \
     check_if_game_has_started, partition_the_grid, winner_modal_is_open
 
@@ -67,7 +67,7 @@ if __name__ == '__main__':
         wordle_solver = WordleSolver(WordsRepository())
         game_won = False
         while not game_won:
-            with opened_browser(date):
+            with opened_browser(date), new_working_directory_location():
                 check_if_game_has_started()
                 wait_till_animation_end()
                 move_mouse((200, 200, 300, 300), 0.5)

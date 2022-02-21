@@ -5,22 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0e97c16b-94b0-4357-bd63-a9951d3adea3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/image_objects.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/actuator.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/actuator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/color_stuff.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/color_stuff.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/core.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/screen_stuff.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/screen_stuff.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sensor.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/sensor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/solve.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/solve.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worlde/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/worlde_server_files/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worlde/main.e65ce0a5.js" beforeDir="false" afterPath="$PROJECT_DIR$/worlde_server_files/main.e65ce0a5.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worlde/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/worlde_server_files/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/actuator.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/actuator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/color_stuff.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/color_stuff.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screen_stuff.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/screen_stuff.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/sensor.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/sensor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/solve.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/solve.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -70,7 +73,7 @@
       <workItem from="1644630980838" duration="36738000" />
       <workItem from="1645304577576" duration="8300000" />
       <workItem from="1645365844277" duration="7879000" />
-      <workItem from="1645384747485" duration="1562000" />
+      <workItem from="1645384747485" duration="12741000" />
     </task>
     <servers />
   </component>

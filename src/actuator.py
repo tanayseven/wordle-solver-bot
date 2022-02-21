@@ -2,9 +2,10 @@ import logging
 from typing import Tuple
 
 import cv2  # type: ignore
-import pyautogui  # type: ignore
 import numpy as np  # type: ignore
+import pyautogui  # type: ignore
 
+from image_objects import objects_root, close_modal_png, share_button_png
 from screen_stuff import screen_shot_location
 from sensor import take_a_screenshot
 
@@ -17,19 +18,19 @@ def enter_a_word(word: str):
 
 def close_modal():
     logging.info("Closing the modal")
-    screen_object = cv2.imread("objects/close-modal.png", cv2.IMREAD_UNCHANGED)
+    screen_object = cv2.imread(f"{(objects_root / close_modal_png)}", cv2.IMREAD_UNCHANGED)
     click_the_center_of(screen_object)
 
 
 def click_share_button():
     logging.info("Clicking the share button")
-    screen_object = cv2.imread("objects/share-button.png", cv2.IMREAD_UNCHANGED)
+    screen_object = cv2.imread(f"{(objects_root / share_button_png)}", cv2.IMREAD_UNCHANGED)
     click_the_center_of(screen_object)
 
 
 def click_the_center_of(screen_object: np.ndarray):
     take_a_screenshot()
-    screenshot = cv2.imread(screen_shot_location, cv2.IMREAD_UNCHANGED)
+    screenshot = cv2.imread(screen_shot_location(), cv2.IMREAD_UNCHANGED)
     result = cv2.matchTemplate(screenshot, screen_object, cv2.TM_CCOEFF_NORMED)
     _, __, ___, max_loc = cv2.minMaxLoc(result)
     click_location = (

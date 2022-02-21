@@ -5,8 +5,8 @@ import numpy as np
 from termcolor import colored  # type: ignore
 
 from core import ColorRGB, white, green, color_map, ColorName
+from screen_stuff import screen_shot_location
 from sensor import take_a_screenshot
-
 
 CellBounds = list[tuple[tuple[Any, Any], tuple[Any, Any]]]
 RowWithCellBounds = tuple[CellBounds, CellBounds, CellBounds, CellBounds, CellBounds]
@@ -14,7 +14,7 @@ RowWithCellBounds = tuple[CellBounds, CellBounds, CellBounds, CellBounds, CellBo
 
 def letter_colours(row: CellBounds, number=0) -> list[ColorRGB]:
     take_a_screenshot()
-    screen_shot = cv2.imread("screen-shot.png", cv2.IMREAD_UNCHANGED)
+    screen_shot = cv2.imread(screen_shot_location(), cv2.IMREAD_UNCHANGED)
     grid_colours: list[ColorRGB] = []
     for i, ((x1, y1), (x2, y2)) in enumerate(row):
         grid_cell = screen_shot[x1:y1, x2:y2]
