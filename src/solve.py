@@ -95,6 +95,7 @@ if __name__ == '__main__':
                         for _ in range(5):
                             pyautogui.press("backspace")
                     elif all_green_cells(colors):
+                        logging.info(f"I see the colors 👀{color_squares(colors, wordle_solver.current_word)}")
                         logging.info("Looks like I won the game 🙋")
                         move_mouse((200, 200, 300, 300), 0.5)
                         game_won = True
