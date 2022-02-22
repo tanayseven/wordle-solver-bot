@@ -1,9 +1,11 @@
 Wordle Solver Bot
 =================
 
-Cautions
---------
+Caution
+-------
 If you're running this locally it; beware that it is not well tested and might not work for you
+
+![Wordle Solution Demo](wordle_solution_demo.gif)
 
 
 How to run
